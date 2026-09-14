@@ -2,6 +2,8 @@
 
 A simple command-line interface (CLI) application built with Python to track and manage your day-to-day tasks. Built as part of the [roadmap.sh](https://roadmap.sh/) backend developer projects.
 
+* **Project Repository:** [https://github.com/HE1MER25/task-tracker-cli](https://github.com/HE1MER25/task-tracker-cli)
+
 ## Features
 * Add new tasks with automatic unique ID generation.
 * Update existing task descriptions.
@@ -51,4 +53,3 @@ python tracker.py reorder 2 1
 
 ## License
 This project is open-source and available under the MIT License.
-"""

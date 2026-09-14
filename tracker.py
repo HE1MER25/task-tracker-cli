@@ -5,6 +5,7 @@ from datetime import datetime
 
 FILENAME = "tracker.json"
 
+# Load tasks from the JSON file
 def load_tasks():
     if not os.path.exists(FILENAME):
         return []
@@ -15,6 +16,7 @@ def load_tasks():
         print("Error: Failed to decode JSON from the tracker file.")
         return []
 
+# Save the task list into the JSON file
 def save_tasks(tasks):
     try:
         with open(FILENAME, "w") as file:
@@ -22,6 +24,7 @@ def save_tasks(tasks):
     except IOError:
         print("Error: Failed to write to the tracker file.")
 
+# Add a new task with a unique ID and timestamps
 def add_task(description):
     tasks = load_tasks()
     new_id = max([task["id"] for task in tasks], default=0) + 1
@@ -39,6 +42,7 @@ def add_task(description):
     save_tasks(tasks)
     print(f"Task added with ID: {new_id}")
 
+# Update an existing task's description or status
 def update_task(task_id, description=None, status=None):
     tasks = load_tasks()
     for task in tasks:
@@ -53,12 +57,14 @@ def update_task(task_id, description=None, status=None):
             return
     print(f"Error: Task with ID {task_id} not found.")
 
+# Delete a task by its ID
 def delete_task(task_id):
     tasks = load_tasks()
     new_tasks = [task for task in tasks if task["id"] != task_id]
     save_tasks(new_tasks)
     print(f"Task with ID {task_id} deleted successfully.")
 
+# Change the status of a specific task (e.g., in-progress, done)
 def mark_task(task_id, status):
     tasks = load_tasks()
     for task in tasks:
@@ -70,6 +76,7 @@ def mark_task(task_id, status):
             return
     print(f"Error: Task with ID {task_id} not found.")
 
+# Display all tasks or filter them by status
 def list_tasks(status_filter=None):
     tasks = load_tasks()
     if status_filter:
@@ -79,6 +86,8 @@ def list_tasks(status_filter=None):
         return
     for task in tasks:
         print(f"ID: {task['id']}, Description: {task['description']}, Status: {task['status']}, Created At: {task['created_at']}, Updated At: {task['updated_at']}")
+
+# Reorder tasks based on a custom sequence of IDs provided by the user
 def reorder_tasks(new_order):
     tasks = load_tasks()
     if len(new_order) != len(tasks):
@@ -93,6 +102,7 @@ def reorder_tasks(new_order):
     save_tasks(reordered_tasks)
     print("Tasks reordered successfully.")
 
+# Automatically reassign sequential IDs (1, 2, 3...) based on current order
 def renumber_task():
     tasks = load_tasks()
     for index, task in enumerate(tasks):
@@ -100,6 +110,7 @@ def renumber_task():
     save_tasks(tasks)
     print("Tasks renumbered successfully.")
 
+# Main command-line argument parser and dispatcher
 def main():
     if len(sys.argv) < 2:
         print("Usage: python tracker.py <command> [<args>]")
@@ -107,6 +118,7 @@ def main():
 
     command = sys.argv[1]
 
+    # Handle 'add' command
     if command == "add":
         if len(sys.argv) < 3:
             print("Error: Description is required for adding a task.")
@@ -114,6 +126,7 @@ def main():
         description = " ".join(sys.argv[2:])
         add_task(description)
 
+    # Handle 'update' command
     elif command == "update":
         if len(sys.argv) < 4:
             print("Error: Task ID and new description are required for updating a task.")
@@ -126,6 +139,7 @@ def main():
         description = " ".join(sys.argv[3:])
         update_task(task_id, description=description)
     
+    # Handle 'delete' command
     elif command == "delete":
         if len(sys.argv) < 3:
             print("Error: Task ID is required for deleting a task.")
@@ -137,6 +151,7 @@ def main():
             return
         delete_task(task_id)
     
+    # Handle 'mark-in-progress' command
     elif command == "mark-in-progress":
         if len(sys.argv) < 3:
             print("Error: Task ID is required.")
@@ -148,6 +163,7 @@ def main():
             return
         mark_task(task_id, "in-progress")
 
+    # Handle 'mark-done' command
     elif command == "mark-done":
         if len(sys.argv) < 3:
             print("Error: Task ID is required.")
@@ -159,6 +175,7 @@ def main():
             return
         mark_task(task_id, "done")
 
+    # Handle 'list' command (with optional status filter)
     elif command == "list":
         status_filter = None
         if len(sys.argv) > 2:
@@ -168,21 +185,23 @@ def main():
                 return
         list_tasks(status_filter)
     
+    # Handle custom 'reorder' command
     elif command == "reorder":
         if len(sys.argv) < 3:
             print("Error: Provide the new order of task IDs. Usage: python tracker.py reorder <id1> <id2> <id3> ...")
             return
         try:
-            # Convert all arguments after 'reorder' into integers
             new_order = [int(arg) for arg in sys.argv[2:]]
         except ValueError:
             print("Error: All task IDs must be integers.")
             return
         reorder_tasks(new_order)
     
+    # Handle custom 'renumber' command
     elif command == "renumber":
         renumber_task()
 
+    # Catch-all for unrecognized commands
     else:
         print(f"Error: Unknown command '{command}'.")
 

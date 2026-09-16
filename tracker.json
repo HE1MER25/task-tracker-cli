@@ -1,1 +1,9 @@
-[]
+[
+    {
+        "id": 1,
+        "description": "Ask her out",
+        "created_at": "2026-09-16T03:37:56.441750",
+        "updated_at": "2026-09-16T03:37:56.441750",
+        "status": "pending"
+    }
+]

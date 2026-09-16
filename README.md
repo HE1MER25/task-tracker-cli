@@ -1,16 +1,18 @@
 # Task Tracker CLI
 
-A simple command-line interface (CLI) application built with Python to track and manage your day-to-day tasks. Built as part of the [roadmap.sh](https://roadmap.sh/projects/task-tracker/) backend developer projects.
+A simple command-line interface (CLI) application built with Python to track and manage your day-to-day tasks interactively. Built as part of the [roadmap.sh](https://roadmap.sh/projects/task-tracker/) backend developer projects.
 
 * **Project Repository:** [https://github.com/HE1MER25/task-tracker-cli](https://github.com/HE1MER25/task-tracker-cli)
 
 ## Features
-* Add new tasks with automatic unique ID generation.
+* Interactive welcome menu with guided step-by-step prompts.
+* Add new tasks with automatic unique ID generation and timestamps.
 * Update existing task descriptions.
 * Delete tasks by ID.
-* Mark tasks as `in-progress` or `done`.
-* List all tasks, or filter them by status (`todo`, `in-progress`, `done`).
-* Automatically renumber task IDs sequentially after modifications.
+* Mark tasks as `pending`, `in-progress`, or `done`.
+* List all tasks, or filter them by their status.
+* Automatically renumber task IDs sequentially.
+* Manually reorder tasks by sequence.
 * Local data persistence using a lightweight JSON file.
 
 ## Prerequisites
@@ -21,35 +23,27 @@ A simple command-line interface (CLI) application built with Python to track and
    git clone https://github.com/HE1MER25/task-tracker-cli.git
    cd task-tracker-cli
 
-2. Run the script using Python:
-   python tracker.py --help
+2. Launch the interactive application:
+   python tracker.py
 
-## Usage & Commands
-Here are the commands you can use in your terminal:
+## Interactive Menu Options
+When you run the script, you will be greeted with an interactive menu. Simply type a number from **1 to 9** to perform actions:
 
-### 1. Add a Task
-python tracker.py add "Buy groceries"
+1. **Add a Task:** Prompts you to enter a description and saves it with a unique ID.
+2. **List Tasks:** Displays all tasks or lets you filter by status (`pending`, `in-progress`, `done`).
+3. **Update a Task Description:** Prompts for the Task ID and the new text.
+4. **Delete a Task:** Prompts for the Task ID to remove it from storage.
+5. **Mark Task as In-Progress:** Updates the target task status to `in-progress`.
+6. **Mark Task as Done:** Updates the target task status to `done`.
+7. **Renumber Tasks:** Automatically cleans up IDs to be sequential (1, 2, 3...).
+8. **Reorder Tasks:** Prompts for all active task IDs in your desired new sequence (e.g., `2 1 3`).
+   * *Important Rule:* You must provide all active task IDs when reordering.
+9. **Exit:** Safely closes the application.
 
-### 2. List Tasks
-python tracker.py list
-python tracker.py list done
-
-### 3. Update a Task Description
-python tracker.py update 1 "Buy groceries and cook dinner"
-
-### 4. Mark Task Status
-python tracker.py mark-in-progress 1
-python tracker.py mark-done 1
-
-### 5. Delete a Task
-python tracker.py delete 1
-
-### 6. Renumber Tasks
-python tracker.py renumber
-
-### 7. Reorder Tasks
-python tracker.py reorder 2 1
-* Important Rule: You must provide all active task IDs when reordering. If you have 2 tasks, you must pass both IDs in your new sequence (e.g., reorder 2 1). If you have 3 tasks, you must pass all three (e.g., reorder 3 1 2).
-
-## License
-This project is open-source and available under the MIT License.
+## Project Structure
+```text
+task-tracker-cli/
+│
+├── tracker.py       # Main Python script containing interactive menu logic
+├── tracker.json     # Local data store (generated automatically)
+└── README.md        # Project documentation

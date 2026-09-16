@@ -1,4 +1,3 @@
-import sys
 import os
 import json
 from datetime import datetime
@@ -10,7 +9,7 @@ def load_tasks():
     if not os.path.exists(FILENAME):
         return []
     try:
-        with open(FILENAME, "r") as file:
+        with open(FILENAME, "r", encoding="utf-8") as file:
             return json.load(file)
     except json.JSONDecodeError:
         print("Error: Failed to decode JSON from the tracker file.")
@@ -19,7 +18,7 @@ def load_tasks():
 # Save the task list into the JSON file
 def save_tasks(tasks):
     try:
-        with open(FILENAME, "w") as file:
+        with open(FILENAME, "w", encoding="utf-8") as file:
             json.dump(tasks, file, indent=4)
     except IOError:
         print("Error: Failed to write to the tracker file.")
@@ -61,6 +60,9 @@ def update_task(task_id, description=None, status=None):
 def delete_task(task_id):
     tasks = load_tasks()
     new_tasks = [task for task in tasks if task["id"] != task_id]
+    if len(new_tasks) == len(tasks):
+        print(f"Error: Task with ID {task_id} not found.")
+        return
     save_tasks(new_tasks)
     print(f"Task with ID {task_id} deleted successfully.")
 
@@ -85,7 +87,7 @@ def list_tasks(status_filter=None):
         print("No tasks found.")
         return
     for task in tasks:
-        print(f"ID: {task['id']}, Description: {task['description']}, Status: {task['status']}, Created At: {task['created_at']}, Updated At: {task['updated_at']}")
+        print(f"ID: {task['id']}, Description: {task['description']}, Status: {task['status']}, Created At: {task['created_at'][:10]}, Updated At: {task['updated_at'][:10]}")
 
 # Reorder tasks based on a custom sequence of IDs provided by the user
 def reorder_tasks(new_order):
@@ -103,8 +105,11 @@ def reorder_tasks(new_order):
     print("Tasks reordered successfully.")
 
 # Automatically reassign sequential IDs (1, 2, 3...) based on current order
-def renumber_task():
+def renumber_tasks():
     tasks = load_tasks()
+    if not tasks:
+        print("No tasks to renumber.")
+        return
     for index, task in enumerate(tasks):
         task["id"] = index + 1
     save_tasks(tasks)
@@ -112,98 +117,99 @@ def renumber_task():
 
 # Main command-line argument parser and dispatcher
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python tracker.py <command> [<args>]")
-        return
-
-    command = sys.argv[1]
-
-    # Handle 'add' command
-    if command == "add":
-        if len(sys.argv) < 3:
-            print("Error: Description is required for adding a task.")
-            return
-        description = " ".join(sys.argv[2:])
-        add_task(description)
-
-    # Handle 'update' command
-    elif command == "update":
-        if len(sys.argv) < 4:
-            print("Error: Task ID and new description are required for updating a task.")
-            return
-        try:
-            task_id = int(sys.argv[2])
-        except ValueError:
-            print("Error: Task ID must be an integer.")
-            return
-        description = " ".join(sys.argv[3:])
-        update_task(task_id, description=description)
-    
-    # Handle 'delete' command
-    elif command == "delete":
-        if len(sys.argv) < 3:
-            print("Error: Task ID is required for deleting a task.")
-            return
-        try:
-            task_id = int(sys.argv[2])
-        except ValueError:
-            print("Error: Task ID must be an integer.")
-            return
-        delete_task(task_id)
-    
-    # Handle 'mark-in-progress' command
-    elif command == "mark-in-progress":
-        if len(sys.argv) < 3:
-            print("Error: Task ID is required.")
-            return
-        try:
-            task_id = int(sys.argv[2])
-        except ValueError:
-            print("Error: Task ID must be an integer.")
-            return
-        mark_task(task_id, "in-progress")
-
-    # Handle 'mark-done' command
-    elif command == "mark-done":
-        if len(sys.argv) < 3:
-            print("Error: Task ID is required.")
-            return
-        try:
-            task_id = int(sys.argv[2])
-        except ValueError:
-            print("Error: Task ID must be an integer.")
-            return
-        mark_task(task_id, "done")
-
-    # Handle 'list' command (with optional status filter)
-    elif command == "list":
-        status_filter = None
-        if len(sys.argv) > 2:
-            status_filter = sys.argv[2]
-            if status_filter not in ["pending", "in-progress", "done"]:
-                print("Error: Status filter must be 'pending', 'in-progress', or 'done'.")
-                return
-        list_tasks(status_filter)
-    
-    # Handle custom 'reorder' command
-    elif command == "reorder":
-        if len(sys.argv) < 3:
-            print("Error: Provide the new order of task IDs. Usage: python tracker.py reorder <id1> <id2> <id3> ...")
-            return
-        try:
-            new_order = [int(arg) for arg in sys.argv[2:]]
-        except ValueError:
-            print("Error: All task IDs must be integers.")
-            return
-        reorder_tasks(new_order)
-    
-    # Handle custom 'renumber' command
-    elif command == "renumber":
-        renumber_task()
-
-    # Catch-all for unrecognized commands
-    else:
-        print(f"Error: Unknown command '{command}'.")
+    while True:
+        print("\n==============================")
+        print("    WELCOME TO TASK TRACKER   ")
+        print("==============================")
+        print("1. Add a Task")
+        print("2. List Tasks")
+        print("3. Update a Task Description")
+        print("4. Delete a Task")
+        print("5. Mark Task as In-Progress")
+        print("6. Mark Task as Done")
+        print("7. Renumber Tasks")
+        print("8. Reorder Tasks")
+        print("9. Exit")
+        
+        choice = input("\nChoose an option (1-9): ").strip()
+        
+        if choice == '1':
+            desc = input("Enter task description: ").strip()
+            if desc:
+                add_task(desc)
+            else:
+                print("\n[Error] Description cannot be empty.")
+            input("\nPress Enter to continue...")
+                
+        elif choice == '2':
+            print("\nFilter options: [1] All [2] pending [3] in-progress [4] done")
+            f_choice = input("Select filter view (press Enter for all): ").strip()
+            if f_choice == '2':
+                list_tasks("pending")
+            elif f_choice == '3':
+                list_tasks("in-progress")
+            elif f_choice == '4':
+                list_tasks("done")
+            else:
+                list_tasks()
+            input("\nPress Enter to continue...")
+                
+        elif choice == '3':
+            try:
+                task_id = int(input("Enter the Task ID to update: "))
+                desc = input("Enter the new description: ").strip()
+                if desc:
+                    update_task(task_id, desc)
+                else:
+                    print("\n[Error] Description cannot be empty.")
+            except ValueError:
+                print("\n[Error] Task ID must be a valid number.")
+            input("\nPress Enter to continue...")
+                
+        elif choice == '4':
+            try:
+                task_id = int(input("Enter the Task ID to delete: "))
+                delete_task(task_id)
+            except ValueError:
+                print("\n[Error] Task ID must be a valid number.")
+            input("\nPress Enter to continue...")
+                
+        elif choice == '5':
+            try:
+                task_id = int(input("Enter the Task ID to mark as in-progress: "))
+                mark_task(task_id, "in-progress")
+            except ValueError:
+                print("\n[Error] Task ID must be a valid number.")
+            input("\nPress Enter to continue...")
+                
+        elif choice == '6':
+            try:
+                task_id = int(input("Enter the Task ID to mark as done: "))
+                mark_task(task_id, "done")
+            except ValueError:
+                print("\n[Error] Task ID must be a valid number.")
+            input("\nPress Enter to continue...")
+                
+        elif choice == '7':
+            renumber_tasks()
+            input("\nPress Enter to continue...")
+            
+        elif choice == '8':
+            ids_input = input("Enter all active task IDs in your desired new order separated by spaces (e.g. 2 1 3): ").strip()
+            try:
+                new_order = [int(x) for x in ids_input.split()]
+                reorder_tasks(new_order)
+            except ValueError:
+                print("\n[Error] Please enter valid integer IDs separated by spaces.")
+            input("\nPress Enter to continue...")
+                
+        elif choice == '9':
+            print("\nThank you for using Task Tracker. Goodbye!")
+            break
+            
+        else:
+            print("\n[Error] Invalid option. Please choose a number from 1 to 9.")
+            input("\nPress Enter to continue...")
 
 if __name__ == "__main__":
     main()
